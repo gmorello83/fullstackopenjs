@@ -2,5 +2,5 @@ note over browser:
 browser executes the event handler
 that renders notes to display
 end note
-browser->server: HTTP GET ../new_note_spa
+browser->server: HTTP POST ../new_note_spa
 server-->browser: code 201 - {"message":"note created"}
