@@ -34,6 +34,8 @@ const App = () => {
     copy[selected] += 1  // add a vote for the selected anecdote
     if (copy[selected]>=votes[mostVoted]) { setMostVoted(selected) } //update most voted anecdote
     console.log("Votes : ", copy, "most voted : ",mostVoted)
+    
+    
     setVote (copy)
   }
 
