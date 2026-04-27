@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-const Button = (props) => {
+const Button = ({handleClick, lib}) => {
   return (
-    <button onClick={props.handleClick}>{props.lib}</button>
+    <button onClick={handleClick}>{lib}</button>
   )
 }
 
