@@ -1,53 +1,98 @@
-import { Component, useState } from 'react'
+import { useState, useEffect } from 'react'
+
+import personsService from './services/persons'
+
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Numbers from './components/Numbers'
 
-
-
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
-
-  const [displayedPersons, setDisplayedPersons] = useState(persons);
+  const [persons, setPersons] = useState([])
 
   const [newName, setName] = useState('');
   const handleNameChange = (event) => setName(event.target.value);
 
   const [newNumber, setNumber] = useState('');
-  const handleNumberChange = (event) => setNumber(event.target.value)
+  const handleNumberChange = (event) => setNumber(event.target.value);
 
   const [search, setSearch] = useState('');
-  const handleSearchChange = (event) => {
-    const newSearch = event.target.value
-    setSearch(newSearch);
-    const personsUpdated = persons.filter((p) => p.name.toLowerCase().includes(newSearch.toLowerCase()));
-    setDisplayedPersons(personsUpdated);
-  }
+  const handleSearchChange = (event) => setSearch(event.target.value);
 
-  const addNumber = (event) => {
+  const handleAdding = (event) => {
     event.preventDefault()
 
-    if (newName === '') alert(`Please can you fill the name`)
-    else if (newNumber === '') alert(`Please can you fill the phone number`)
-    else if (persons.find((p) => p.name === newName)) alert(`${newName} is already added to phonebook`)
-    else if (persons.find((p) => p.number === newNumber)) alert(`${newNumber} is already added to phonebook`)
-    else {
-      let maxId = Math.max(...persons.map(p => p.id));
-      maxId++;
-      const personsUpdated = persons.concat({ name: newName, number: newNumber, id: maxId });
-      console.log(personsUpdated);
-      setPersons(personsUpdated);
-      const personsfiltered =personsUpdated.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
-      setDisplayedPersons(personsfiltered);
-      setName('');
-      setNumber('');
+    if (newName === '') {
+      alert(`Please can you fill the name`);
+      return;
     }
+
+    if (newNumber === '') {
+      alert(`Please can you fill the phone number`);
+      return;
+    }
+
+    if (persons.find((p) => p.number === newNumber)) {
+      alert(`${newNumber} is already added to phonebook`);
+      return;
+    }
+
+    const person = persons.find((p) => p.name === newName)
+    if ((person) && (confirm(`${newName} is already added to phonebook.\nwould you like to upadte the number`))) {
+      console.log("update validate")
+      personsService
+        .update(person.id, { ...person, number: newNumber })
+        .then(response => {          
+          setPersons(persons.map(p => p.id === person.id ? response.data : p))
+          setName('');
+          setNumber('');
+        })
+        .catch(err => console.error(err))
+      return;
+    } 
+
+    console.log("adding")
+    let maxId = persons.length > 0
+      ? Math.max(...persons.map(p => p.id)) + 1
+      : 1;
+    const newPersons = persons.concat();
+    personsService
+      .create({ name: newName, number: newNumber, id: maxId })
+      .then(response => {
+        setPersons(persons.concat(response.data));
+        setName('');
+        setNumber('');
+      })
   }
+
+  const handleDeleteNumber = (id) => {
+    console.log('delete Number id:',id)
+
+    const person = persons.find(p => p.id === id);
+    console.log('delete Number name :',person)
+    if (confirm(`Confirmez-vous la suppression de ${person.name}`)) {
+
+      personsService
+        .deleteOne(id)
+        .then(response => {
+          console.log('delete confirmed :', response)
+          setPersons(persons.filter(p => p.id !== id))
+        })
+        .catch(error => { console.log('delete error:', error) })
+
+    } else
+      console.log('delete canceled');
+
+  }
+
+  useEffect(() => {
+    personsService
+      .getAll()
+      .then(response => {
+        setPersons(response.data)
+      })
+  }, [])
+
+  const displayedPersons = persons.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div>
@@ -60,9 +105,10 @@ const App = () => {
         number={newNumber}
         onNameChange={handleNameChange}
         onNumberChange={handleNumberChange}
-        onSubmit={addNumber} />
-      <Numbers 
-        persons={displayedPersons} />
+        onSubmit={handleAdding} />
+      <Numbers
+        persons={displayedPersons}
+        onDelete={handleDeleteNumber} />
     </div>
   )
 }
