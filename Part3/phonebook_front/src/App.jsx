@@ -8,6 +8,7 @@ import Numbers from './components/Numbers'
 import Notification from './components/Notification'
 
 const App = () => {
+  
   const [persons, setPersons] = useState([])
   const handleAdding = (event) => {
     event.preventDefault()
@@ -39,7 +40,7 @@ const App = () => {
           showMessage({ err: false, text: <><b>{person.name}</b>'s' number is updated.</> })
         })
         .catch(err => {
-          console.log("Error during update validated")
+          console.log("Error during update validated", err)
           showMessage({ err: true, text: <>Unable to update <b>{person.name}</b> number. Please try again.</> })
         })
       return;
