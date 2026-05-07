@@ -6,7 +6,7 @@ let url = process.env.MONGODB_URI
 console.log('connecting to', url)
 mongoose.connect(url, { family: 4 })
 
-  .then(result => {
+  .then(() => {
     console.log('MongoDB connection OK')
   })
   .catch(error => {
@@ -14,8 +14,8 @@ mongoose.connect(url, { family: 4 })
   })
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+  name: String,
+  number: String,
 })
 
 personSchema.set('toJSON', {
@@ -26,4 +26,4 @@ personSchema.set('toJSON', {
   }
 })
 
-module.exports = mongoose.model('Person', personSchema, "persons")
+module.exports = mongoose.model('Person', personSchema, 'persons')
