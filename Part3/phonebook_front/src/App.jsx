@@ -50,15 +50,14 @@ const App = () => {
     let maxId = persons.length > 0
       ? Math.max(...persons.map(p => p.id)) + 1
       : 1;
-    const newPersons = persons.concat();
+    
     personsService
       .create({ name: newName, number: newNumber, id: maxId })
       .then(response => {
         setPersons(persons.concat(response.data));
         setName('');
         setNumber('');
-        const message =
-          showMessage({ err: false, text: <><b>{response.data.name}</b> is added to the phonebook</> })
+        showMessage({ err: false, text: <><b>{response.data.name}</b> is added to the phonebook</> })
       })
   }
 
@@ -76,7 +75,7 @@ const App = () => {
           setPersons(persons.filter(p => p.id !== id))
           showMessage({ err: false, text: <><b>{response.data.name}</b> is deleted from the phonebook</> })
         })
-        .catch(error => {
+        .catch(() => {
           showMessage({ err: true, text: <>Unable to delete <b>{person.name}</b> from the phonebook</> })
         })
 
